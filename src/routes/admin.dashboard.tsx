@@ -71,7 +71,7 @@ function AdminDashboard() {
     const q = search.trim().toLowerCase();
     if (!q) return regsQ.data;
     return regsQ.data.filter((r) => {
-      return [r.full_name, r.mobile, r.church_name, r.district, r.category, ...r.competitions.map((c) => COMP_SHORT[c] || c)]
+      return [r.full_name, r.mobile, r.church_name, r.pastor_name, r.church_location, r.category, ...r.competitions.map((c) => COMP_SHORT[c] || c)]
         .filter(Boolean).some((v) => String(v).toLowerCase().includes(q));
     });
   }, [regsQ.data, search]);
@@ -102,8 +102,10 @@ function AdminDashboard() {
       "Name": r.full_name,
       "Mobile": r.mobile,
       "Email": r.email || "",
-      "Church": r.church_name,
-      "District": r.district || "",
+      "Advent Branch": r.church_name,
+      "Pastor Name": r.father_name || "",
+      "Youth Leader": r.pastor_name || "",
+      "Youth Leader Contact": r.church_location || "",
       "Category": r.category,
       "Bible Test": r.competitions.includes("bible_test") ? "Yes" : "",
       "PPT": r.competitions.includes("ppt") ? "Yes" : "",
@@ -199,7 +201,7 @@ function AdminDashboard() {
             <div className="flex flex-col gap-2 sm:flex-row">
               <div className="relative">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, phone, church, district…" className="w-full rounded-full border border-border bg-background py-2 pl-9 pr-4 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 sm:w-80" />
+                <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, phone, branch, leader…" className="w-full rounded-full border border-border bg-background py-2 pl-9 pr-4 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 sm:w-80" />
               </div>
               <button onClick={exportExcel} className="inline-flex items-center justify-center gap-1.5 rounded-full btn-hero px-4 py-2 text-xs font-semibold">
                 <Download className="h-4 w-4" /> Export Excel
@@ -216,7 +218,7 @@ function AdminDashboard() {
               <table className="w-full min-w-[900px] text-sm">
                 <thead className="bg-secondary/50 text-xs uppercase tracking-wider text-muted-foreground">
                   <tr>
-                    {["Reg ID", "Name", "Mobile", "Church", "District", "Category", "Competitions", "Date", "Status"].map((h) => (
+                    {["Reg ID", "Name", "Mobile", "Advent Branch", "Pastor", "Youth Leader", "Category", "Competitions", "Date", "Status"].map((h) => (
                       <th key={h} className="px-4 py-3 text-left font-semibold">{h}</th>
                     ))}
                   </tr>
@@ -228,7 +230,8 @@ function AdminDashboard() {
                       <td className="px-4 py-3 font-medium">{r.full_name}</td>
                       <td className="px-4 py-3">{r.mobile}</td>
                       <td className="px-4 py-3">{r.church_name}</td>
-                      <td className="px-4 py-3">{r.district || "—"}</td>
+                      <td className="px-4 py-3">{r.father_name || "—"}</td>
+                      <td className="px-4 py-3">{r.pastor_name || "—"}</td>
                       <td className="px-4 py-3">
                         <span className="inline-flex rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-semibold text-gold-foreground">{r.category}</span>
                       </td>

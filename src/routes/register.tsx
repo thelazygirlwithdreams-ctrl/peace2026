@@ -1,13 +1,13 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { calculateAge, getCategory, COMPETITIONS } from "@/lib/registration-utils";
-import { User, MapPin, Church, Trophy, CheckCircle2, Loader2 } from "lucide-react";
+import { User, Church, Trophy, CheckCircle2, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/register")({
   component: RegisterPage,
@@ -21,11 +21,7 @@ const schema = z.object({
   mobile: z.string().regex(/^\d{10}$/, "Mobile must be exactly 10 digits"),
   whatsapp: z.string().regex(/^\d{10}$/).optional().or(z.literal("")),
   email: z.string().email("Invalid email").optional().or(z.literal("")),
-  address: z.string().max(300).optional().or(z.literal("")),
-  district: z.string().max(80).optional().or(z.literal("")),
-  state: z.string().max(80).optional().or(z.literal("")),
-  pincode: z.string().max(10).optional().or(z.literal("")),
-  church_name: z.string().trim().min(2, "Church name required").max(150),
+  church_name: z.string().trim().min(2, "Advent Branch Name required").max(150),
   pastor_name: z.string().max(120).optional().or(z.literal("")),
   church_location: z.string().max(150).optional().or(z.literal("")),
 });
@@ -33,13 +29,12 @@ const schema = z.object({
 type FormState = {
   full_name: string; father_name: string; gender: "Male" | "Female" | "";
   date_of_birth: string; mobile: string; whatsapp: string; email: string;
-  address: string; district: string; state: string; pincode: string;
   church_name: string; pastor_name: string; church_location: string;
 };
 
 const initial: FormState = {
   full_name: "", father_name: "", gender: "", date_of_birth: "",
-  mobile: "", whatsapp: "", email: "", address: "", district: "", state: "", pincode: "",
+  mobile: "", whatsapp: "", email: "",
   church_name: "", pastor_name: "", church_location: "",
 };
 
@@ -103,9 +98,8 @@ function RegisterPage() {
 
   // Progress
   const progress = useMemo(() => {
-    let filled = 0; const total = 6;
+    let filled = 0; const total = 5;
     if (form.full_name && form.date_of_birth && form.mobile.length === 10) filled++;
-    if (form.address || form.district || form.state) filled++;
     if (form.church_name) filled++;
     if (competitions.length > 0) filled++;
     if (category) filled++;
@@ -128,8 +122,6 @@ function RegisterPage() {
     setErrors({});
     setSubmitting(true);
 
-    // Generate a client-side registration ID so we don't need .select() after insert.
-    // This avoids the RLS violation: anon users can INSERT but NOT SELECT.
     const timestamp = Date.now().toString().slice(-6);
     const rand = Math.floor(100 + Math.random() * 900).toString();
     const clientRegId = `PEACE2026-${timestamp}${rand}`;
@@ -145,10 +137,6 @@ function RegisterPage() {
       mobile: form.mobile,
       whatsapp: form.whatsapp || null,
       email: form.email || null,
-      address: form.address || null,
-      district: form.district || null,
-      state: form.state || null,
-      pincode: form.pincode || null,
       church_name: form.church_name.trim(),
       pastor_name: form.pastor_name || null,
       church_location: form.church_location || null,
@@ -157,7 +145,6 @@ function RegisterPage() {
       ppt_language: competitions.includes("ppt") ? pptLang : null,
     };
 
-    // Insert WITHOUT .select() — avoids the RLS SELECT policy violation for anon users
     const { error } = await supabase.from("registrations").insert(payload as never);
     setSubmitting(false);
 
@@ -171,7 +158,6 @@ function RegisterPage() {
     }
 
     toast.success("Registration successful!");
-    // Store the submitted data locally — no DB read needed
     const regData = {
       registration_id: clientRegId,
       full_name: form.full_name.trim(),
@@ -273,30 +259,25 @@ function RegisterPage() {
           </SectionCard>
 
           {/* Section 2 */}
-          <SectionCard icon={MapPin} step={2} title="Address">
+          <SectionCard icon={Church} step={2} title="Advent Branch Information">
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Address"><textarea className={inputCls} rows={2} value={form.address} onChange={(e) => set("address", e.target.value)} maxLength={300} /></Field>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="District"><input className={inputCls} value={form.district} onChange={(e) => set("district", e.target.value)} maxLength={80} /></Field>
-                <Field label="State"><input className={inputCls} value={form.state} onChange={(e) => set("state", e.target.value)} maxLength={80} /></Field>
-                <Field label="Pincode"><input inputMode="numeric" className={inputCls} value={form.pincode} onChange={(e) => set("pincode", e.target.value.replace(/\D/g, "").slice(0, 10))} /></Field>
-              </div>
-            </div>
-          </SectionCard>
-
-          {/* Section 3 */}
-          <SectionCard icon={Church} step={3} title="Church Information">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Church Name" required error={errors.church_name}>
+              <Field label="Advent Branch Name" required error={errors.church_name}>
                 <input className={inputCls} value={form.church_name} onChange={(e) => set("church_name", e.target.value)} maxLength={150} />
               </Field>
-              <Field label="Pastor Name"><input className={inputCls} value={form.pastor_name} onChange={(e) => set("pastor_name", e.target.value)} maxLength={120} /></Field>
-              <Field label="Church Location"><input className={inputCls} value={form.church_location} onChange={(e) => set("church_location", e.target.value)} maxLength={150} /></Field>
+              <Field label="Pastor Name">
+                <input className={inputCls} value={form.father_name} onChange={(e) => set("father_name", e.target.value)} maxLength={120} placeholder="Optional" />
+              </Field>
+              <Field label="Youth Leader Name">
+                <input className={inputCls} value={form.pastor_name} onChange={(e) => set("pastor_name", e.target.value)} maxLength={120} />
+              </Field>
+              <Field label="Youth Leader Contact Number">
+                <input className={inputCls} value={form.church_location} onChange={(e) => set("church_location", e.target.value)} maxLength={150} />
+              </Field>
             </div>
           </SectionCard>
 
-          {/* Section 4 — Rules and selection */}
-          <SectionCard icon={Trophy} step={4} title="Competitions & Rules">
+          {/* Section 3 — Rules and selection */}
+          <SectionCard icon={Trophy} step={3} title="Competitions & Rules">
             <p className="mb-5 text-sm text-muted-foreground">Read the rules for each event below and tick the ones you want to enter.</p>
 
             <div className="space-y-5">
@@ -304,7 +285,6 @@ function RegisterPage() {
                 const checked = competitions.includes(c.id);
                 return (
                   <div key={c.id} className={`overflow-hidden rounded-2xl border transition ${checked ? "border-primary bg-primary/5 shadow-[var(--shadow-soft)]" : "border-border bg-background"}`}>
-                    {/* Rules header */}
                     <div className="border-b border-border/60 bg-[image:var(--gradient-soft)] p-5">
                       <div className="flex items-start gap-3">
                         <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white text-2xl shadow-[var(--shadow-soft)]">{c.emoji}</div>
@@ -374,7 +354,6 @@ function RegisterPage() {
                       </div>
                     </div>
 
-                    {/* Select checkbox */}
                     <label className="flex cursor-pointer items-center gap-3 p-4">
                       <input type="checkbox" className="sr-only" checked={checked} onChange={() => toggleComp(c.id)} />
                       <div className={`grid h-6 w-6 place-items-center rounded-md border-2 transition ${checked ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}>
@@ -385,7 +364,6 @@ function RegisterPage() {
                       </span>
                     </label>
 
-                    {/* Language selectors */}
                     {checked && c.id === "bible_test" && (
                       <div className="border-t border-border/60 bg-white p-4">
                         <div className="mb-2 text-xs font-semibold text-primary">Preferred Language for Bible Written Test</div>
