@@ -177,9 +177,6 @@ function AdminLogin() {
             </button>
           </form>
 
-          <p className="mt-5 text-center text-[11px] text-white/30">
-            Default: username <span className="text-white/50 font-mono">sahana</span> / password <span className="text-white/50 font-mono">Sahana</span>
-          </p>
         </div>
       </div>
     </div>

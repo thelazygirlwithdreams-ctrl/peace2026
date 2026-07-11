@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import * as XLSX from "xlsx";
 import {
   BookOpen, Monitor, HelpCircle, Users, Calendar, Download, Search, LogOut,
-  Loader2, Lock, Unlock,
+  Loader2, Lock, Unlock, Trash2, History
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -66,18 +66,20 @@ function AdminDashboard() {
   });
 
   const [search, setSearch] = useState("");
+  const [showDeleted, setShowDeleted] = useState(false);
   const filtered = useMemo(() => {
     if (!regsQ.data) return [];
+    const baseList = regsQ.data.filter(r => showDeleted ? r.status === 'deleted' : r.status !== 'deleted');
     const q = search.trim().toLowerCase();
-    if (!q) return regsQ.data;
-    return regsQ.data.filter((r) => {
+    if (!q) return baseList;
+    return baseList.filter((r) => {
       return [r.full_name, r.mobile, r.church_name, r.pastor_name, r.church_location, r.category, ...r.competitions.map((c) => COMP_SHORT[c] || c)]
         .filter(Boolean).some((v) => String(v).toLowerCase().includes(q));
     });
-  }, [regsQ.data, search]);
+  }, [regsQ.data, search, showDeleted]);
 
   const stats = useMemo(() => {
-    const list = regsQ.data || [];
+    const list = (regsQ.data || []).filter(r => r.status !== 'deleted');
     const todayStr = new Date().toISOString().slice(0, 10);
     return {
       total: list.length,
@@ -96,8 +98,17 @@ function AdminDashboard() {
     qc.invalidateQueries({ queryKey: ["reg-status"] });
   };
 
+  const removeRegistration = async (id: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to remove ${name}?`)) return;
+    const { error } = await supabase.from("registrations").update({ status: 'deleted' }).eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`${name} removed successfully.`);
+    qc.invalidateQueries({ queryKey: ["admin-regs"] });
+  };
+
   const exportExcel = () => {
-    const rows = (regsQ.data || []).map((r) => ({
+    const list = (regsQ.data || []).filter(r => showDeleted ? r.status === 'deleted' : r.status !== 'deleted');
+    const rows = list.map((r) => ({
       "Registration ID": r.registration_id,
       "Name": r.full_name,
       "Mobile": r.mobile,
@@ -203,6 +214,9 @@ function AdminDashboard() {
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, phone, branch, leader…" className="w-full rounded-full border border-border bg-background py-2 pl-9 pr-4 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 sm:w-80" />
               </div>
+              <button onClick={() => setShowDeleted(!showDeleted)} className={`inline-flex items-center justify-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold ${showDeleted ? 'bg-destructive/10 text-destructive' : 'btn-hero'}`}>
+                <History className="h-4 w-4" /> {showDeleted ? "View Active" : "Deleted Logs"}
+              </button>
               <button onClick={exportExcel} className="inline-flex items-center justify-center gap-1.5 rounded-full btn-hero px-4 py-2 text-xs font-semibold">
                 <Download className="h-4 w-4" /> Export Excel
               </button>
@@ -218,7 +232,7 @@ function AdminDashboard() {
               <table className="w-full min-w-[900px] text-sm">
                 <thead className="bg-secondary/50 text-xs uppercase tracking-wider text-muted-foreground">
                   <tr>
-                    {["Reg ID", "Name", "Mobile", "Advent Branch", "Pastor", "Youth Leader", "Category", "Competitions", "Date", "Status"].map((h) => (
+                    {["Reg ID", "Name", "Mobile", "Advent Branch", "Pastor", "Youth Leader", "Category", "Competitions", "Date", "Status", "Actions"].map((h) => (
                       <th key={h} className="px-4 py-3 text-left font-semibold">{h}</th>
                     ))}
                   </tr>
@@ -244,7 +258,14 @@ function AdminDashboard() {
                       </td>
                       <td className="px-4 py-3 text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</td>
                       <td className="px-4 py-3">
-                        <span className="inline-flex rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">{r.status}</span>
+                        <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${r.status === 'deleted' ? 'bg-destructive/10 text-destructive' : 'bg-emerald-500/10 text-emerald-700'}`}>{r.status}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        {r.status !== 'deleted' && (
+                          <button onClick={() => removeRegistration(r.id, r.full_name)} className="text-muted-foreground hover:text-destructive transition-colors" title="Remove Entry">
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}
