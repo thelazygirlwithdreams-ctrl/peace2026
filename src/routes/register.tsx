@@ -302,6 +302,9 @@ function RegisterPage() {
                         <div className="mt-4 rounded-lg border border-gold/40 bg-gold/10 p-3">
                           <div className="text-[10px] font-semibold uppercase tracking-wider text-gold-foreground/70">Topic</div>
                           <div className="font-display text-sm font-bold text-primary">{c.topic}</div>
+                          {c.intro && (
+                            <div className="mt-1 text-xs text-muted-foreground italic">({c.intro})</div>
+                          )}
                         </div>
                       )}
 
@@ -378,15 +381,15 @@ function RegisterPage() {
                       </div>
                     )}
                     {checked && c.id === "ppt" && (
-                      <div className="border-t border-border/60 bg-white p-4">
-                        <div className="mb-2 text-xs font-semibold text-primary">Presentation Language</div>
-                        <div className="flex gap-3">
-                          {(["Tamil", "English"] as const).map((l) => (
-                            <label key={l} className={`flex-1 cursor-pointer rounded-lg border px-4 py-2 text-center text-sm transition ${pptLang === l ? "border-primary bg-primary text-primary-foreground font-semibold" : "border-border bg-background"}`}>
-                              <input type="radio" name="pptLang" className="sr-only" checked={pptLang === l} onChange={() => setPptLang(l)} />
-                              {l}
-                            </label>
-                          ))}
+                      <div className="border-t border-border/60 bg-amber-50 p-4 space-y-2">
+                        <div className="text-xs font-semibold text-primary">Presentation Language Rules</div>
+                        <div className="flex items-start gap-2 rounded-lg border border-amber-300/60 bg-white px-3 py-2 text-xs text-foreground">
+                          <span className="mt-0.5 text-amber-500">🎙️</span>
+                          <span><strong>Oral Presentation:</strong> Must be delivered <strong>only in Tamil</strong>.</span>
+                        </div>
+                        <div className="flex items-start gap-2 rounded-lg border border-blue-200/60 bg-white px-3 py-2 text-xs text-foreground">
+                          <span className="mt-0.5 text-blue-500">📊</span>
+                          <span><strong>PowerPoint Slides:</strong> May be prepared in <strong>Tamil or English</strong>.</span>
                         </div>
                       </div>
                     )}

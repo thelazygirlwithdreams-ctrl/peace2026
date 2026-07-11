@@ -72,19 +72,13 @@ export const COMPETITIONS: CompetitionInfo[] = [
     date: "08-08-2026",
     day: "Saturday",
     time: "4:30 PM",
-    short: "Topic: 400 Years of Silence",
-    topic: "400 Years of Silence",
-    subtopics: [
-      "Biblical Timeline",
-      "Historical Evidences",
-      "Bible References",
-      "Historical and Cultural Transition",
-      "Religious Evolution",
-      "Theological Significance",
-      "Biblical Archaeology",
-      "Theological Exegesis",
+    short: "Topic: பவுலின் ஊழியத்தினால் ஏற்பட்ட புரட்சி அன்றும் இன்றும்",
+    topic: "பவுலின் ஊழியத்தினால் ஏற்பட்ட புரட்சி அன்றும் இன்றும்",
+    intro: "The Revolution Brought About by Paul's Ministry – Then and Now",
+    rules: [
+      "Participants must present their topic only in Tamil. However, the PowerPoint slides may be created in either Tamil or English.",
+      "Maximum Presentation Time: 7 Minutes.",
     ],
-    rules: ["Maximum Presentation Time: 7 Minutes."],
   },
   {
     id: "quiz",
@@ -103,4 +97,3 @@ export const COMPETITIONS: CompetitionInfo[] = [
   },
 ];
 
-export const PPT_SUBTOPICS = COMPETITIONS[1].subtopics!;
