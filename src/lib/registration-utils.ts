@@ -58,7 +58,7 @@ export const COMPETITIONS: CompetitionInfo[] = [
       "Duration of the written test: 80 minutes (1 hour 20 minutes).",
     ],
     categories: [
-      { name: "Primary (Under 14 years)", portion: "Joshua Chapters 1–5" },
+      { name: "Primary (Under 14 years)", portion: "Luke Chapters 1-5" },
       { name: "Junior (15–20 years)", portion: "Ephesians, Philippians" },
       { name: "Senior (21–35 years)", portion: "1 & 2 Peter, 1, 2 & 3 John" },
       { name: "Super Senior (36 & Above)", portion: "Job" },
