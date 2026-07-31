@@ -33,7 +33,6 @@ export type CompetitionInfo = {
   day: string;
   time: string;
   short: string;
-  lastDate?: string;
   intro?: string;
   rules: string[];
   categories?: { name: string; portion: string }[];
@@ -51,7 +50,6 @@ export const COMPETITIONS: CompetitionInfo[] = [
     day: "Sunday",
     time: "3:00 PM",
     short: "Written examination based on assigned Bible portions.",
-    lastDate: "01-08-2026 (Saturday)",
     rules: [
       "The written test will be conducted only based on the specified Bible portions assigned for each category.",
       "Participants must choose the category according to their age.",

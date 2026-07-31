@@ -293,7 +293,6 @@ function RegisterPage() {
                           <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
                             <span>📅 {c.date} ({c.day})</span>
                             <span>⏰ {c.time}</span>
-                            {c.lastDate && <span className="font-semibold text-destructive">Last date: {c.lastDate}</span>}
                           </div>
                         </div>
                       </div>
